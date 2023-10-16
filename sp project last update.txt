@@ -1,0 +1,1414 @@
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+struct Doctor {
+    string firstName;
+    string secondName;
+    int age;
+    string phoneNumber;
+    string email;
+    string gender;
+    string speciality;
+    string userName;
+    string password;
+};
+
+struct Patient {
+    string firstName;
+    string secondName;
+    int age;
+    string phoneNumber;
+    string email;
+    string gender;
+    string userName;
+    string password;
+};
+
+
+struct AllBookingsStrc {
+
+    string patientUsername, drUsername, appointment;
+};
+
+
+void doctorMenu(string username, Patient patientsUsers[], int sizeOFFileP); void fileUpdating(string username, string app[], int appnum); void doctorEditingApp(string username, string app[], int appnum, Patient patientsUsers[], int sizeOFFileP);
+void doctorsAddingApp(string username, string app[], int  numOfApp, Patient patientsUsers[], int sizeOFFileP); void appRemover(string username, int appnum, Patient patientsUsers[], int sizeOFfileP); void loginForDoctors(Doctor doctorUsers[], int sizeOfFileD, int sizeOfFileP, Patient patientUsers[]);
+void editInfoForPatient(string username, Patient patientUsers[], int sizeOfFileP, Doctor doctorUSers[], int sizeOffileD); void patietsMenu(string usernameofpatient, Patient patientUsers[], int sizeOfFileP, Doctor doctorUsers[], int sizeOffileD);
+void registrationFormDoctors(Doctor doctorUsers[20], int sizeOfFileD, Patient patientsUsers[], int sizeOFFileP); int readFileForDoctors(Doctor doctorUsers[]); void writeFileForDoctor(Doctor doctorUsers[], int size);
+int readFileForPatient(Patient patientUsers[]); void writeFileForPatient(Patient patientUsers[], int size); void registrationFormPatients(Patient patientUsers[100], int sizeOfFile, Doctor doctorUsers[], int sizeOffileD);
+void LoginFunction(Patient patientUsers[], int sizeOfFileP, Doctor doctorUsers[], int sizeOfFileD); void RegisterFunction(Patient patientUsers[], int sizeOfFileP, Doctor doctorUsers[], int sizeOfFileD);
+void loginForPatients(Patient patientUsers[], int sizeOfFileP, int sizeOfFiledD, Doctor doctorUsers[]);
+bool reserveAppointment(Doctor doctorUsers[], int sizeOfFileD, string usernameofpatient);
+void receiveDoctorUsers(string doctorUsername, string usernameofpatient);
+void addingApptopatienthistory(string username, string appointment, string drUsername);
+void veiwMyPatients(string drusername, Patient patientsUsers[], int sizeOFFileP);
+void viewAndEditAppointments(string usernameofpatient, Patient patientUsers[], int sizeOfFileP, Doctor doctorUsers[], int sizeOffileD);
+void editAppointment(string usernameofpatient, AllBookingsStrc app[], int num, Doctor doctorUsers[], int sizeOffileD, string usernameOfDr);
+void cancelAppointment(string usernameofpatient, AllBookingsStrc app[], int num, Doctor doctorUsers[], int sizeOffileD, string usernameOfDr);
+void editApptopatienthistory(AllBookingsStrc app[100], int num);
+void patientHistoryDeleter(string username, Patient patientUsers[], int sizeOfFileP, Doctor doctorUsers[], int sizeOffileD);
+
+
+string back = "\t\t\t\t\t";
+int main()
+{
+    Patient patientUsers[100];
+    int sizeOfFileP = readFileForPatient(patientUsers);
+
+    Doctor doctorUsers[20];
+    int sizeOfFileD = readFileForDoctors(doctorUsers);
+
+
+
+    int answer;
+    cout << "\n========================================================================================================================";
+    cout << endl;
+    cout << "\n\t\tSSSSSSSSSSS   HHHHH    HHHHH   EEEEEEEEEEE    FFFFFFFFFFFF   AAAAAAAAAA      2222222";
+    cout << "\n\t\tSSSSSS        HHHHH    HHHHH   EEEEE          FFFFF         AAAA     AAAA        222";
+    cout << "\n\t\tSSSSSSSSSSS   HHHHHHHHHHHHHH   EEEEEEEEEEE    FFFFFFFFFF    AAAAAAAAAAAAA    22222 ";
+    cout << "\n\t\t    SSSSSSS   HHHHH    HHHHH   EEEEE          FFFFF         AAAAA   AAAAA    222    ";
+    cout << "\n\t\tSSSSSSSSSSS   HHHHH    HHHHH   EEEEEEEEEEE    FFFFF         AAAAA   AAAAA    222222222 ";
+    cout << endl;
+    cout << "\n========================================================================================================================";
+    cout << "\n\n";
+    cout << "\t\t\t\t\t\tWelcome to shefa2" << endl;
+    cout << "\n\n";
+    cout << "\t\t\t----------------------------------------------------------------------------" << endl;
+    cout << "\t\t\t|\t\t                                                           |" << endl;
+    cout << "\t\t\t|\t\tDo you want to login or register                           |" << endl;
+    cout << "\t\t\t|\t\t1) login                                                   |" << endl;
+    cout << "\t\t\t|\t\t2) register                                                |" << endl;
+    cout << "\t\t\t|\t\t                                                           |" << endl;
+    cout << "\t\t\t|__________________________________________________________________________|" << endl;
+    cout << "\n";
+
+    // Keep asking the user for a valid answer
+    while (true)
+    {
+        cout << "\t\t\t\t\tyour answer: "; cin >> answer;
+        if (answer == 1 || answer == 2)
+        {
+            cout << "\t\t\t--------------------------------------------------------------------\n" << endl;
+
+            if (answer == 1)
+            {
+                LoginFunction(patientUsers, sizeOfFileP, doctorUsers, sizeOfFileD);
+            }
+            else if (answer == 2)
+            {
+                RegisterFunction(patientUsers, sizeOfFileP, doctorUsers, sizeOfFileD);
+            }
+        }
+        else
+        {
+            cout << "\t\t\t\t\tInvalid answer: Please enter 1 or 2." << endl;
+            cout << "\t\t\t--------------------------------------------------------------------\n" << endl;
+        }
+        cin.clear();
+        cin.ignore(10000, '\n');
+        //We also added the cin.clear() and cin.ignore() functions to clear the input buffer after an invalid input.
+    }
+
+
+    return 0;
+}
+
+//this function asks the user if they want to login as a patient or a doctor
+void LoginFunction(Patient patientUsers[], int sizeOfFileP, Doctor doctorUsers[], int sizeOfFileD)
+{
+    int answer;
+
+    while (true)
+    {
+        cout << "\t\t\t\t\tDo you want to login as a patient or as a Doctor?      " << endl;
+        cout << "\t\t\t\t\t1) Patient                                             " << endl;
+        cout << "\t\t\t\t\t2) Doctor                                              " << endl;
+        cout << "\t\t\t\t\t3) Return to the main page                             " << endl;
+        cout << "\t\t\t\t\tyour answer: "; cin >> answer;
+
+        cout << "\t\t\t--------------------------------------------------------------------\n" << endl;
+
+        if (answer == 1)
+        {
+            loginForPatients(patientUsers, sizeOfFileP, sizeOfFileD, doctorUsers);
+            break; // Exit the loop after successful login
+        }
+        else if (answer == 2)
+        {
+            loginForDoctors(doctorUsers, sizeOfFileD, sizeOfFileP, patientUsers);
+            break; // Exit the loop after successful login
+        }
+        else if (answer == 3)
+        {
+            main(); // Exit the function and return to main menu
+        }
+        else
+        {
+            cout << "\t\t\t\t\tInvalid answer: Please enter 1, 2, or 3." << endl;
+            cout << "\t\t\t--------------------------------------------------------------------\n" << endl;
+        }
+
+        cin.clear();
+        cin.ignore(10000, '\n');
+        //We also added the cin.clear() and cin.ignore() functions to clear the input buffer after an invalid input.
+    }
+}
+
+
+//this function asks the user if they want to register as a patient or a doctor
+void RegisterFunction(Patient patientUsers[], int sizeOfFileP, Doctor doctorUsers[], int sizeOfFileD)
+{
+
+    cout << "\t\t\t--------------------------------------------------------------------\n" << endl;
+
+    int answer;
+    while (true)
+    {
+        cout << "\t\t\t\t\tDo you want to Register as a patient or as a Doctor?\n" << endl;
+        cout << "\t\t\t\t\t1) Patient\n" << endl;
+        cout << "\t\t\t\t\t2) Doctor\n" << endl;
+        cout << "\t\t\t\t\t3) Return to the main page\n" << endl;
+        cout << "\t\t\t\t\tyour answer: "; cin >> answer;
+        cout << "\t\t\t--------------------------------------------------------------------\n" << endl;
+
+
+        if (answer == 1)
+        {
+            registrationFormPatients(patientUsers, sizeOfFileP, doctorUsers, sizeOfFileD);
+        }
+        else if (answer == 2)
+        {
+            registrationFormDoctors(doctorUsers, sizeOfFileD, patientUsers, sizeOfFileP);
+        }
+        else if (answer == 3)
+        {
+            main();
+        }
+        else
+        {
+            cout << "\t\t\t\t\tInvalid answer: Please enter 1 or 2." << endl;
+            cout << "\t\t\t--------------------------------------------------------------------\n" << endl;
+
+        }
+        cin.clear();
+        cin.ignore(10000, '\n');
+        //We also added the cin.clear() and cin.ignore() functions to clear the input buffer after an invalid input.
+    }
+}
+
+void loginForPatients(Patient patientUsers[], int sizeOfFileP, int sizeOfFiledD, Doctor doctorUsers[])
+{
+
+    cout << "\t\t\t--------------------------------------------------------------------\n" << endl;
+
+    string username, password;
+    bool loggedIn = false;
+
+    do
+    {
+        cout << "\t\t\t\t\tEnter Username: ";
+        cin >> username;
+        cout << "\t\t\t\t\tEnter password: ";
+        cin >> password;
+
+        for (int i = 0; i < sizeOfFileP; i++)
+        {
+            if (username == patientUsers[i].userName && password == patientUsers[i].password)
+            {
+                loggedIn = true;
+                patietsMenu(patientUsers[i].userName, patientUsers, sizeOfFileP, doctorUsers, sizeOfFiledD);
+                break;
+            }
+        }
+
+        if (!loggedIn)
+        {
+            cout << "\t\t\t--------------------------------------------------------------------\n" << endl;
+            cout << "\t\t\t\t\tUsername or password is incorrect. Please try again.\n" << endl;
+        }
+
+    } while (!loggedIn);
+}
+
+
+
+// this function reads patients' data from the files 
+int readFileForPatient(Patient patientUsers[]) {
+
+    cout << "\t\t\t--------------------------------------------------------------------\n" << endl;
+
+    ifstream file;
+    int size;
+    file.open("patients.txt");
+    if (!file.is_open()) {      
+        cout << "\t\t\t--------------------------------------------------------------------\n" << endl;
+
+        cout << back << "Error: file tst.txt could not be opened." << endl;
+
+        return -1;
+    }
+    file >> size;
+    for (int i = 0; i < size; i++)
+    {
+        file >> patientUsers[i].firstName >> patientUsers[i].secondName >> patientUsers[i].age >> patientUsers[i].phoneNumber >> patientUsers[i].email >> patientUsers[i].gender >> patientUsers[i].userName >> patientUsers[i].password;
+    }
+    file.close();
+    return size;
+}
+
+// this function updates patients' data to the files 
+void writeFileForPatient(Patient patientUsers[], int size) {
+    cout << "\t\t\t--------------------------------------------------------------------\n" << endl;
+
+    ofstream file;
+    file.open("patients.txt");
+    if (!file.is_open()) {       
+        cout << "\t\t\t--------------------------------------------------------------------\n" << endl;
+
+        cout << back << "Error: file tst.txt could not be opened." << endl;
+
+        return;
+    }
+    file << size << endl;
+    for (int i = 0; i < size; i++)
+    {
+        file << patientUsers[i].firstName << endl << patientUsers[i].secondName << endl << patientUsers[i].age << endl << patientUsers[i].phoneNumber << endl << patientUsers[i].email << endl << patientUsers[i].gender << endl << patientUsers[i].userName << endl << patientUsers[i].password << endl;
+    }
+    file.close();
+}
+
+
+// this is the regestration form for the patients
+void registrationFormPatients(Patient patientUsers[100], int sizeOfFile, Doctor doctorUsers[], int sizeOffileD)
+{
+    cout << "\t\t\t--------------------------------------------------------------------\n" << endl;
+
+
+    if (sizeOfFile >= 100) {    
+        cout << "\t\t\t--------------------------------------------------------------------\n" << endl;
+
+        cout << back << "Error: maximum number of patients reached." << endl;
+
+        return;
+    }
+    cout << "\t\t\t\t\t First name: "; cin >> patientUsers[sizeOfFile].firstName;
+    cout << "\t\t\t\t\t Last/Second name: "; cin >> patientUsers[sizeOfFile].secondName;
+    cout << "\t\t\t\t\t Phone Number: "; cin >> patientUsers[sizeOfFile].phoneNumber;
+    cout << "\t\t\t\t\t Email: "; cin >> patientUsers[sizeOfFile].email;
+    cout << "\t\t\t\t\t Age: "; cin >> patientUsers[sizeOfFile].age;
+    while (patientUsers[sizeOfFile].age < 0 || patientUsers[sizeOfFile].age > 120) {
+        cout << "\t\t\t\t\t Error: please enter a valid age (0-120)." << endl;
+        cout << "\t\t\t\t\t Age: ";
+        cin >> patientUsers[sizeOfFile].age;
+    }
+    cout << "\t\t\t\t\t Gender: "; cin >> patientUsers[sizeOfFile].gender;
+    while (patientUsers[sizeOfFile].gender != "Male" && patientUsers[sizeOfFile].gender != "Female" && patientUsers[sizeOfFile].gender != "male" && patientUsers[sizeOfFile].gender != "female")
+    {
+        cout << "\t\t\t\t\t Error: please enter a valid gender (Male/Female)." << endl;
+        cout << "\t\t\t\t\t Gender: ";
+        cin >> patientUsers[sizeOfFile].gender;
+    }
+
+    bool exist = true;
+    do {
+        cout << "\t\t\t\t\t Username: "; cin >> patientUsers[sizeOfFile].userName;
+
+        for (int i = 0; i < sizeOfFile; i++)
+        {
+            if (patientUsers[i].userName == patientUsers[sizeOfFile].userName) {
+                cout << "\t\t\t\t\t Error: username already exists." << endl;
+                exist = true;
+            }
+            else
+            {
+                exist = false;
+            }
+        }
+    } while (exist == true);
+
+    cout << "\t\t\t\t\t Password: "; cin >> patientUsers[sizeOfFile].password;
+
+    string newpatient = patientUsers[sizeOfFile].userName;
+
+    sizeOfFile++;
+    writeFileForPatient(patientUsers, sizeOfFile);
+    cout << "\t\t\t--------------------------------------------------------------------\n" << endl;
+
+    cout << "\t\t\t\t\t User registered successfully." << endl;
+
+    cout << "\t\t\t--------------------------------------------------------------------\n" << endl;
+
+
+    patietsMenu(newpatient, patientUsers, sizeOfFile, doctorUsers, sizeOffileD);
+
+}
+
+
+// this is the registration form of the doctors
+void registrationFormDoctors(Doctor doctorUsers[20], int sizeOfFileD, Patient patientsUsers[], int sizeOFFileP)
+{
+    cout << "\t\t\t--------------------------------------------------------------------\n" << endl;
+
+    if (sizeOfFileD > 20)
+    {
+        cout << "Error: maximum number of patients reached." << endl;
+        cout << "\t\t\t--------------------------------------------------------------------\n" << endl;
+
+        return;
+    }
+    cout << "\t\t\t\t\t First name: "; cin >> doctorUsers[sizeOfFileD].firstName;
+    cout << "\t\t\t\t\t Last/Second name: "; cin >> doctorUsers[sizeOfFileD].secondName;
+    cout << "\t\t\t\t\t Phone Number: "; cin >> doctorUsers[sizeOfFileD].phoneNumber;
+    cout << "\t\t\t\t\t Email: "; cin >> doctorUsers[sizeOfFileD].email;
+    cout << "\t\t\t\t\t Age: "; cin >> doctorUsers[sizeOfFileD].age;
+    while (doctorUsers[sizeOfFileD].age < 0 || doctorUsers[sizeOfFileD].age > 120) {
+        cout << "\t\t\t\t\t Error: please enter a valid age (0-120)." << endl;
+        cout << "\t\t\t\t\t Age: ";
+        cin >> doctorUsers[sizeOfFileD].age;
+    }
+    cout << "\t\t\t\t\t Gender: "; cin >> doctorUsers[sizeOfFileD].gender;
+    while (doctorUsers[sizeOfFileD].gender != "Male" && doctorUsers[sizeOfFileD].gender != "Female" && doctorUsers[sizeOfFileD].gender != "male" && doctorUsers[sizeOfFileD].gender != "female")
+    {
+        cout << "\t\t\t\t\t Error: please enter a valid gender (Male/Female)." << endl;
+        cout << "\t\t\t\t\t Gender: ";
+        cin >> doctorUsers[sizeOfFileD].gender;
+    }
+
+    cout << "\t\t\t\t\t speciality:"; cin >> doctorUsers[sizeOfFileD].speciality;
+
+
+    bool exist = true;
+    do {
+        cout << "\t\t\t\t\t Username: "; cin >> doctorUsers[sizeOfFileD].userName;
+
+        for (int i = 0; i < sizeOfFileD; i++)
+        {
+            if (doctorUsers[i].userName == doctorUsers[sizeOfFileD].userName) {
+                cout << "\t\t\t\t\t Error: username already exists." << endl;
+                exist = true;
+            }
+            else
+            {
+                exist = false;
+            }
+        }
+    } while (exist == true);
+
+    cout << "\t\t\t\t\t Password: "; cin >> doctorUsers[sizeOfFileD].password;
+
+    string newUseranme = doctorUsers[sizeOfFileD].userName;
+
+    sizeOfFileD++;
+    writeFileForDoctor(doctorUsers, sizeOfFileD);
+    cout << "\t\t\t\t\t User registered successfully." << endl;
+    cout << "\t\t\t--------------------------------------------------------------------\n" << endl;
+
+    string filename = newUseranme + ".txt";
+    ofstream file(filename);
+
+    doctorMenu(newUseranme, patientsUsers, sizeOFFileP);
+
+}
+
+// this function reads doctors' data from the files 
+
+int readFileForDoctors(Doctor doctorUsers[]) {
+    ifstream file;
+    int size;
+    file.open("doctors.txt");
+    if (!file.is_open()) {
+        cout << "Error: file tst.txt could not be opened.\n" << endl;
+        cout << "\t\t\t--------------------------------------------------------------------\n" << endl;
+
+        return -1;
+    }
+    file >> size;
+    for (int i = 0; i < size; i++)
+    {
+        file >> doctorUsers[i].firstName >> doctorUsers[i].secondName >> doctorUsers[i].age >> doctorUsers[i].phoneNumber >> doctorUsers[i].email >> doctorUsers[i].gender >> doctorUsers[i].speciality >> doctorUsers[i].userName >> doctorUsers[i].password;
+    }
+    file.close();
+    return size;
+}
+
+// this function updates doctors' data to the files 
+
+void writeFileForDoctor(Doctor doctorUsers[], int size) {
+    ofstream file;
+    file.open("doctors.txt");
+    if (!file.is_open()) {     
+        cout << "\t\t\t--------------------------------------------------------------------\n" << endl;
+
+        cout << "Error: file tst.txt could not be opened.\n" << endl;
+
+        return;
+    }
+    file << size << endl;
+    for (int i = 0; i < size; i++)
+    {
+        file << doctorUsers[i].firstName << endl << doctorUsers[i].secondName << endl << doctorUsers[i].age << endl << doctorUsers[i].phoneNumber << endl << doctorUsers[i].email << endl << doctorUsers[i].gender << endl << doctorUsers[i].speciality << endl << doctorUsers[i].userName << endl << doctorUsers[i].password << endl;
+    }
+    file.close();
+}
+
+
+// edit information of patient
+void editInfoForPatient(string username, Patient patientUsers[], int sizeOfFileP, Doctor doctorUSers[], int sizeOffileD)
+{
+    cout << "\t\t\t--------------------------------------------------------------------\n" << endl;
+
+    int answer;
+    string newUsername, newPassword, newEmail, newnumber, newfirst, newsecond;
+    cout << back << "what do you want to edit? " << endl;
+    cout << back << "1. Username " << endl;
+    cout << back << "2. Password " << endl;
+    cout << back << "3. Email " << endl;
+    cout << back << "4. Phone number" << endl;
+    cout << back << "5. First name" << endl;
+    cout << back << "6. Last/Second name" << endl;
+    cout << back << "7. Return to the previous page." << endl;
+    cout << back << "Your answer: "; cin >> answer;
+    cout << "\t\t\t--------------------------------------------------------------------\n" << endl;
+
+
+    if (answer == 1)
+    {
+        for (int i = 0; i < sizeOfFileP; i++)
+        {
+            if (username == patientUsers[i].userName)
+            {
+                bool exist = true;
+                do {
+                    cout << back << "Enter your new username:"; cin >> newUsername;
+                    exist = false; //assume username is not taken first
+                    for (int j = 0; j < sizeOfFileP; j++)
+                    {
+                        if (patientUsers[j].userName == newUsername) {
+                            cout << "\t\t\t\t\t Error: username already exists." << endl;  // checks if the username alraedy exict
+                            exist = true;
+                            break;
+                        }
+                        else
+                        {
+                            exist = false;
+                        }
+                    }
+                    if (!exist)
+                    {
+                        patientUsers[i].userName = newUsername; // update username in array
+                        cout << back << "Username updated successfully.\n" << endl;
+
+                    }
+
+                } while (exist);
+                break;
+
+            }
+        }
+        writeFileForPatient(patientUsers, sizeOfFileP); // update the files 
+        editInfoForPatient(username, patientUsers, sizeOfFileP, doctorUSers, sizeOffileD);
+    }
+    else if (answer == 2)
+    {
+        for (int i = 0; i < sizeOfFileP; i++)
+        {
+            if (username == patientUsers[i].userName)
+            {
+                cout << back << "Enter your new password:"; cin >> newPassword;
+
+                patientUsers[i].password = newPassword;
+
+                cout << back << "Password updated successfully\n" << endl;
+                cout << "\t\t\t--------------------------------------------------------------------\n" << endl;
+
+
+            }
+        }
+
+        writeFileForPatient(patientUsers, sizeOfFileP);
+        editInfoForPatient(username, patientUsers, sizeOfFileP, doctorUSers, sizeOffileD);
+
+    }
+    else if (answer == 3)
+    {
+        for (int i = 0; i < sizeOfFileP; i++)
+        {
+            if (username == patientUsers[i].userName)
+            {
+                bool exist = true;
+                do {
+                    cout << back << "Enter your new email:"; cin >> newEmail;
+
+                    for (int x = 0; x < sizeOfFileP; x++)
+                    {
+                        if (newEmail == patientUsers[x].email)
+                        {
+                            cout << "\t\t\t\t\t Error: email already registered." << endl;
+                            exist = true;
+                            break;
+                        }
+                        else
+                        {
+                            patientUsers[i].email = newEmail;
+                            cout << back << "Email updated successfully." << endl;
+                            cout << "\t\t\t--------------------------------------------------------------------\n" << endl;
+
+                            exist = false;
+                            break;
+                        }
+                    }
+                } while (exist);
+            }
+        }
+
+        writeFileForPatient(patientUsers, sizeOfFileP);
+        editInfoForPatient(username, patientUsers, sizeOfFileP, doctorUSers, sizeOffileD);
+
+    }
+    else if (answer == 4)
+    {
+        for (int i = 0; i < sizeOfFileP; i++)
+        {
+            if (username == patientUsers[i].userName)
+            {
+                bool exist = true;
+                do {
+                    cout << "\t\t\t\t\t Enter your new phone number:"; cin >> newnumber;
+
+                    for (int x = 0; x < sizeOfFileP; x++)
+                    {
+                        if (newnumber == patientUsers[x].phoneNumber)
+                        {
+                            cout << "\t\t\t\t\t Error: phone number already taken." << endl;
+                            exist = true;
+                            break;
+                        }
+                        else
+                        {
+                            patientUsers[i].phoneNumber = newnumber;
+                            cout << "\t\t\t\t\t Phone number updated successfully." << endl;
+                            cout << "\t\t\t--------------------------------------------------------------------\n" << endl;
+
+                            exist = false;
+                            break;
+                        }
+                    }
+                } while (exist);
+            }
+        }
+
+        writeFileForPatient(patientUsers, sizeOfFileP);
+        editInfoForPatient(username, patientUsers, sizeOfFileP, doctorUSers, sizeOffileD);
+
+    }
+    else if (answer == 5)
+    {
+        for (int i = 0; i < sizeOfFileP; i++)
+        {
+            if (username == patientUsers[i].userName)
+            {
+                cout << "\t\t\t\t\t Enter your new First name:"; cin >> newfirst;
+
+                patientUsers[i].firstName = newfirst;
+
+                cout << "\t\t\t\t\t First name updated successfully" << endl;
+                cout << "\t\t\t--------------------------------------------------------------------\n" << endl;
+
+
+            }
+        }
+
+        writeFileForPatient(patientUsers, sizeOfFileP);
+        editInfoForPatient(username, patientUsers, sizeOfFileP, doctorUSers, sizeOffileD);
+
+    }
+    else if (answer == 6)
+    {
+        for (int i = 0; i < sizeOfFileP; i++)
+        {
+            if (username == patientUsers[i].userName)
+            {
+                cout << "\t\t\t\t\t Enter your new Last/Second name:"; cin >> newsecond;
+
+                patientUsers[i].secondName = newsecond;
+
+                cout << "\t\t\t\t\t Last/Second name updated successfully" << endl;
+                cout << "\t\t\t--------------------------------------------------------------------\n" << endl;
+
+
+            }
+        }
+
+        writeFileForPatient(patientUsers, sizeOfFileP);
+        editInfoForPatient(username, patientUsers, sizeOfFileP, doctorUSers, sizeOffileD);
+
+    }
+    else if (answer == 7)
+    {
+        patietsMenu(username, patientUsers, sizeOfFileP, doctorUSers, sizeOffileD);
+    }
+
+
+}
+
+
+
+
+// doctor menu
+void doctorMenu(string username, Patient patientsUsers[], int sizeOFFileP)
+{
+    cout << "\t\t\t--------------------------------------------------------------------\n" << endl;
+
+    int size = 0;
+    string filename = username + ".txt";
+    ifstream file(filename);
+    string app[56];
+
+    file >> size;
+
+
+    for (int i = 0; i < size; i++)
+    {
+        file >> app[i];
+
+    }
+    file.close();
+
+    int appnum = size;
+
+    int answer;
+    cout <<back <<"Choose from the following list the service you need." << endl;
+    cout << back << "1. Add your availble time." << endl;
+    cout << back << "2. Remove your availble time." << endl;
+    cout << back << "3. Edit your availble time." << endl;
+    cout << back << "4. View patients with their appointments." << endl;
+    cout << back << "5. Logout" << endl;
+
+    while (true)
+    {
+        cout << back << "Your answer: "; cin >> answer;
+
+        if (answer == 1)
+        {
+            doctorsAddingApp(username, app, appnum, patientsUsers, sizeOFFileP);
+        }
+        else if (answer == 2)
+        {
+            appRemover(username, appnum, patientsUsers, sizeOFFileP);
+        }
+        else if (answer == 3)
+        {
+            doctorEditingApp(username, app, appnum, patientsUsers, sizeOFFileP);
+        }
+        else if (answer == 4)
+        {
+            veiwMyPatients(username, patientsUsers, sizeOFFileP);
+        }
+        else if (answer == 5)
+        {
+            main();
+        }
+        else
+        {
+            cout << back << "Invalid answer , please try again." << endl;
+        }
+    }
+    cout << "\t\t\t--------------------------------------------------------------------\n" << endl;
+
+}
+
+void veiwMyPatients(string drusername, Patient patientsUsers[], int sizeOFFileP)
+{
+
+    cout << "\t\t\t--------------------------------------------------------------------\n" << endl;
+
+    int size = 0;
+    ifstream file("AllBookings.txt");
+    AllBookingsStrc app[100];
+
+    file >> size;
+
+    for (int i = 0; i < size; i++)
+    {
+        file >> app[i].drUsername >> app[i].patientUsername >> app[i].appointment;
+
+    }
+    file.close();
+
+    for (int i = 0; i < size; i++)
+    {
+        if (app[i].drUsername == drusername)
+        {
+            int x = 1;
+            for (int j = 0; j < sizeOFFileP; j++)
+            {
+                if (app[i].patientUsername == patientsUsers[j].userName)
+                {
+                    cout << back << x << ". " << patientsUsers[j].firstName << " " << patientsUsers[j].secondName << " Appointment: " << app[i].appointment << endl;
+                    x++;
+                }
+            }
+        }
+    }
+
+    doctorMenu(drusername, patientsUsers, sizeOFFileP);
+
+    cout << "\t\t\t--------------------------------------------------------------------\n" << endl;
+
+}
+
+
+
+// this function is used to login for doctors
+
+void loginForDoctors(Doctor doctorUsers[], int sizeOfFileD, int sizeOfFileP, Patient patientUsers[])
+{
+    cout << "\t\t\t--------------------------------------------------------------------\n" << endl;
+
+    string username, password;
+
+    while (true) {
+        cout << back << "Enter Username: ";
+        cin >> username;
+        cout << back << "Enter password: ";
+        cin >> password;
+
+        bool found = false;
+        for (int i = 0; i < sizeOfFileD; i++) {
+            if (username == doctorUsers[i].userName && password == doctorUsers[i].password) {
+                doctorMenu(username, patientUsers, sizeOfFileP);
+                found = true;
+                break;
+            }
+        }
+
+        if (!found) {
+            cout << back << "Username or password is incorrect, please retry." << endl;
+        }
+    }
+
+
+
+}
+
+// doctor can remove their appointments
+
+void appRemover(string username, int appnum, Patient patientsUsers[], int sizeOFfileP)
+{
+    cout << "\t\t\t--------------------------------------------------------------------\n" << endl;
+
+    cout << back << "Here are all of your appointments.\n\n " << endl;
+
+    string filename = username + ".txt";
+    ifstream file(filename);
+
+    string app[56];
+    file >> appnum;
+    for (int i = 0; i < appnum; i++) {
+        file >> app[i];
+    }
+    file.close();
+
+
+
+
+    for (int i = 0; i < appnum; i++)
+    {
+        cout << back << i + 1 << ". " << app[i] << endl;
+    }
+
+    int day;
+    cout << "\n\n" << back<< "Which appointment do you want to remove : "; cin >> day;
+
+    for (int i = 0; i < appnum; i++)
+    {
+        if (i == day - 1)
+        {
+            for (int j = i; j < appnum - 1; j++)
+            {
+                app[j] = app[j + 1];
+            }
+            appnum--;
+            break;
+        }
+    }
+
+    fileUpdating(username, app, appnum);
+
+    cout << back << "Appointment removed successfully." << endl;
+
+    doctorMenu(username, patientsUsers, sizeOFfileP);
+
+
+}
+
+
+// doctor can add their appointments
+
+void doctorsAddingApp(string username, string app[], int  numOfApp, Patient patientsUsers[], int sizeOFFileP)
+{
+    cout << "\t\t\t--------------------------------------------------------------------\n" << endl;
+
+    int numDays, start_time = 0, end_time = 0;
+    string day;
+    cout << back << "Enter number of available days you wish to work: ";
+    cin >> numDays;
+
+    cout << "\n" << endl;
+    cout << "\t\t\t....................................................................\n" << endl;
+
+    for (int i = 0; i < numDays; i++) {
+
+        cout << back << "Enter available day  (e.g. Monday): ";
+        cin >> day;
+        cout << "\n" << endl;
+        cout << back << "Please enter the start time of your workday (in 24-hour format) for " << day << ": ";
+        cin >> start_time;
+        cout << "\n" << endl;
+
+        cout << back << "Please enter the end time of your workday (in 24-hour format) for " << day << ": ";
+        cin >> end_time;
+        cout << "\n" << endl;
+        cout << "\t\t\t....................................................................\n" << endl;
+ 
+        while (start_time > end_time)
+        {
+            cout << back << "The end time cannot be less than the start time." << endl;
+            cout << back << "Enter end time: ";  cin >> end_time;
+
+
+        }
+        while (end_time - start_time > 8) {
+            cout << back << "Your workday for " << day << " cannot exceed 8 hours. Please enter a valid end time: ";
+            cin >> end_time;
+        }
+        string  y = "=>";;
+
+        int num = 0;
+
+        for (int j = numOfApp; j < numOfApp + (end_time - start_time); j++) // add the new appointments to the array
+        {
+            app[j] = day + to_string(start_time) + y + to_string(start_time + 1);
+            start_time++;
+            num++;
+        }
+
+        numOfApp += num;
+
+    }
+
+    fileUpdating(username, app, numOfApp);
+
+    cout << back << "Appointments added successfully." << endl;
+
+
+
+    doctorMenu(username, patientsUsers, sizeOFFileP);
+    cout << "\t\t\t--------------------------------------------------------------------\n" << endl;
+
+}
+
+// write to the files for dr
+void fileUpdating(string username, string app[], int size)
+{
+    string filename = username + ".txt";
+    ofstream file(filename);
+    file << size << endl;
+    for (int i = 0; i < size; i++) {
+        file << app[i] << endl;
+    }
+    file.close();
+
+
+}
+
+
+// doctor can edit their appointments
+void doctorEditingApp(string username, string app[], int appnum, Patient patientsUsers[], int sizeOFFileP)
+{
+
+    cout << "\t\t\t--------------------------------------------------------------------\n" << endl;
+
+    string filename = username + ".txt";
+    ifstream file(filename);
+
+
+    int num;
+    file >> num;
+    for (int i = 0; i < appnum; i++)
+    {
+        file >> app[i];
+
+    }
+    file.close();
+
+    cout << back << "Here is all of your appointments.\n\n " << endl;
+
+    for (int i = 0; i < appnum; i++)
+    {
+        cout << back << i + 1 << ". " << app[i] << endl;
+    }
+
+    int day;
+    cout << "\n\n" << back << "Which appointment do you want to edit : "; cin >> day;
+
+    cout << "\n" << endl;
+    cout << "\t\t\t....................................................................\n" << endl;
+    string newDay;
+    cout << back << "Enter available day (e.g. Monday): ";
+    cin >> newDay;
+    cout << "\n" << endl;
+
+    int start_time;
+    cout << back << "Please enter the start time of your new appointment (in 24-hour format) for " << newDay << ": ";
+    cin >> start_time;
+    cout << "\n" << endl;
+
+    int end_time;
+    cout << back << "Please enter the end time of your new appointment (in 24-hour format) for " << newDay << ": ";
+    cin >> end_time;
+    cout << "\n" << endl;
+    cout << "\t\t\t....................................................................\n" << endl;
+    while (end_time - start_time != 1)
+    {
+        cout << back << "The appointment cannot be more than one hour" << endl;
+        cout << "\n" << endl;
+        cout << back << "Enter start time: ";  cin >> start_time;
+        cout << "\n" << endl;
+        cout << back << "Enter end time: ";  cin >> end_time;
+        cout << "\n" << endl;
+        cout << "\t\t\t....................................................................\n" << endl;
+    }
+
+    string  y = "=>";
+
+    for (int i = 0; i < num; i++)
+    {
+        if (i == day - 1)
+        {
+            app[i] = newDay + to_string(start_time) + y + to_string(start_time + 1);
+            break;
+        }
+    }
+
+    cout << back << "Appointment edited successfully." << endl;
+
+    fileUpdating(username, app, num);
+
+    doctorMenu(username, patientsUsers, sizeOFFileP);
+
+}
+
+//  reserve an appointment for patient
+bool reserveAppointment(Doctor doctorUsers[], int sizeOfFileD, string usernameofpatient)
+{
+    cout << "\t\t\t--------------------------------------------------------------------\n" << endl;
+
+    int num;
+    for (int i = 0; i < sizeOfFileD; i++)
+    {
+
+        cout <<"\t\t\t\t\t" << i + 1 << " " << doctorUsers[i].firstName << " " << doctorUsers[i].secondName << " " << doctorUsers[i].speciality << endl;
+
+    }
+    cout << "\n\t\t\t\t\twhich doctor do you want to reserve with?";
+    cout << "Answer:"; cin >> num;
+
+    receiveDoctorUsers(doctorUsers[num - 1].userName, usernameofpatient);
+    return true;
+
+
+}
+
+void receiveDoctorUsers(string doctorUsername, string usernameofpatient)
+{
+
+    cout << "\t\t\t--------------------------------------------------------------------\n" << endl;
+
+    string filename = doctorUsername + ".txt";
+    int appnum;
+    ifstream file(filename);
+    int num;
+    file >> num;
+    string app[56];
+    for (int i = 0; i < num; i++)
+    {                                // reading from file
+        file >> app[i];
+
+    }
+    file.close();
+    for (int i = 0; i < num; i++)
+    {
+        cout << "\t\t\t\t\t";
+        cout << i + 1 << ". " << app[i] << endl;
+    }
+
+    bool valid_input = false;
+    while (!valid_input)
+    {
+        cout  << "\t\t\t\t\tEnter the appointment number you want to reserve (1-" << num << "):";cin >> appnum;
+
+        if (appnum >= 1 && appnum <= 56)
+        {
+            addingApptopatienthistory(usernameofpatient, app[appnum - 1], doctorUsername);
+            app[appnum - 1] = "";
+            valid_input = true;
+            num--;
+
+
+        }
+        else
+        {
+            cout << back << "Invalid appointment number entered. Please try again.\n";
+        }
+    }
+
+    ofstream outfile(filename);
+    outfile << num << endl;
+    for (int i = 0; i < num; i++) {
+        outfile << app[i] << endl;
+    }
+    outfile.close();
+
+    return;
+}
+
+// adding app to patient history
+
+void addingApptopatienthistory(string username, string newappointment, string drUsername)
+{
+    string filename = "AllBookings.txt";
+    ifstream file(filename);
+    int num;
+    file >> num;
+    AllBookingsStrc app[100];
+    for (int i = 0; i < num; i++)
+    {
+        file >> app[i].drUsername >> app[i].patientUsername >> app[i].appointment;
+
+    }
+    file.close();
+    app[num].appointment = newappointment;
+    app[num].drUsername = drUsername;
+    app[num].patientUsername = username;
+
+    num++;
+
+    ofstream outfile(filename);
+    outfile << num << endl;
+    for (int i = 0; i < num; i++)
+    {
+        outfile << app[i].drUsername << endl << app[i].patientUsername << endl << app[i].appointment << endl;
+    }
+    outfile.close();
+
+}
+
+
+
+//this function displays the services for the user 
+void patietsMenu(string usernameofpatient, Patient patientUsers[], int sizeOfFileP, Doctor doctorUsers[], int sizeOffileD)
+{
+
+    cout << "\t\t\t--------------------------------------------------------------------\n" << endl;
+
+    int answer;
+    cout << back << "Choose from the following list the service you need." << endl;
+    cout << back << "1. reserve an appointment." << endl;
+    cout << back << "2. View your appointments , edit your appointments , or cancel your appointments." << endl;
+    cout << back << "3. Clear your appointments history." << endl;
+    cout << back << "4. Edit your information." << endl;
+    cout << back << "5. Logout" << endl;
+    cout << back << "Your answer: "; cin >> answer;
+
+    while (true)
+    {
+
+
+        switch (answer)
+        {
+        case 1:
+            //call the reserve function
+            if (reserveAppointment(doctorUsers, sizeOffileD, usernameofpatient))
+            {
+                cout << back << "Your appointment reserved successfully.\n" << endl;
+
+                patietsMenu(usernameofpatient, patientUsers, sizeOfFileP, doctorUsers, sizeOffileD);
+            }
+            else
+            {
+                cout << back << "Failed to reserve appointment. Please try again.\n" << endl;
+
+
+                patietsMenu(usernameofpatient, patientUsers, sizeOfFileP, doctorUsers, sizeOffileD);
+
+            }
+            break;
+        case 2:
+            viewAndEditAppointments(usernameofpatient, patientUsers, sizeOfFileP, doctorUsers, sizeOffileD);
+            cout << "\t\t\t--------------------------------------------------------------------\n" << endl;
+
+            break;
+        case 3:
+            patientHistoryDeleter(usernameofpatient  , patientUsers, sizeOfFileP, doctorUsers, sizeOffileD);
+
+            patietsMenu(usernameofpatient, patientUsers, sizeOfFileP, doctorUsers, sizeOffileD);
+
+                break;
+        case 4:
+            editInfoForPatient(usernameofpatient, patientUsers, sizeOfFileP, doctorUsers, sizeOffileD);
+
+
+            break;
+        case 5:
+            main();
+            break;
+        default:
+            cout << back << "Please enter a number from 1 to 6" << endl;
+            cout << "\t\t\t--------------------------------------------------------------------\n" << endl;
+
+
+        }
+    }
+
+    cout << "\t\t\t--------------------------------------------------------------------\n" << endl;
+
+}
+
+
+void patientHistoryDeleter(string username, Patient patientUsers[], int sizeOfFileP, Doctor doctorUsers[], int sizeOffileD)
+{
+    string filename = "AllBookings.txt";
+    ifstream file(filename);
+    int num;
+    file >> num;
+    AllBookingsStrc app[100];
+    for (int i = 0; i < num; i++)
+    {
+        file >> app[i].drUsername >> app[i].patientUsername >> app[i].appointment;
+    }
+    file.close();
+
+    // Shift the remaining elements and update the count
+    int newIndex = 0;
+    for (int i = 0; i < num; i++)
+    {
+        if (username != app[i].patientUsername)
+        {
+            app[newIndex] = app[i];
+            newIndex++;
+        }
+    }
+    num = newIndex;
+
+    // Write the updated appointment information back to the file
+    ofstream outfile(filename);
+    outfile << num << endl;
+    for (int i = 0; i < num; i++)
+    {
+        outfile << app[i].drUsername << endl
+            << app[i].patientUsername << endl
+            << app[i].appointment << endl;
+    }
+    outfile.close();
+
+}
+
+void viewAndEditAppointments(string usernameofpatient, Patient patientUsers[], int sizeOfFileP, Doctor doctorUsers[], int sizeOffileD)
+{
+    // Retrieve the patient's appointments from the file
+    ifstream file("AllBookings.txt");
+    int num;
+    file >> num;
+    AllBookingsStrc app[100];
+    for (int i = 0; i < num; i++)
+    {
+        file >> app[i].drUsername >> app[i].patientUsername >> app[i].appointment;
+    }
+    file.close();
+    string usernameOfDr;
+    // Display the patient's appointments
+    cout << "\t\t\t--------------------------------------------------------------------\n" << endl;
+
+    cout << back << "Your Appointments:" << endl;
+    int x = 1;
+    for (int i = 0; i < num; i++)
+    {
+        if (app[i].patientUsername == usernameofpatient)
+        {
+            for (int j = 0; j < sizeOffileD; j++)
+            {
+                if (app[i].drUsername == doctorUsers[j].userName)
+                {
+                    cout << back << x << ". " << app[i].appointment << " with Doctor: " << doctorUsers[j].firstName << " " << doctorUsers[j].secondName << endl;
+                    usernameOfDr = doctorUsers[j].userName;
+                    x++;
+                    break;
+                }
+            }
+        }
+    }
+    cout << "\t\t\t--------------------------------------------------------------------\n" << endl;
+
+
+    // Prompt the user for further actions (edit, cancel, or exit)
+    int choice;
+    cout << back << "Choose an option:" << endl;
+    cout << back << "1. Edit an appointment" << endl;
+    cout << back << "2. Cancel an appointment" << endl;
+    cout << back << "3. Exit" << endl;
+    cout << back << "Your choice: ";
+    cin >> choice;
+
+    switch (choice)
+    {
+    case 1:
+        // Call a function to edit an appointment
+        editAppointment(usernameofpatient, app, num, doctorUsers, sizeOffileD, usernameOfDr);
+        break;
+    case 2:
+        // Call a function to cancel an appointment
+        cancelAppointment(usernameofpatient, app, num, doctorUsers, sizeOffileD, usernameOfDr);
+        break;
+    case 3:
+        patietsMenu(usernameofpatient, patientUsers, sizeOfFileP, doctorUsers, sizeOffileD);
+        break;
+    default:
+        cout << back << "Invalid choice. Please try again." << endl;
+        break;
+    }
+
+}
+
+void editAppointment(string usernameofpatient, AllBookingsStrc app[], int num, Doctor doctorUsers[], int sizeOffileD, string usernameOfDr)
+{
+    cout << "\t\t\t--------------------------------------------------------------------\n" << endl;
+
+    string filename = usernameOfDr + ".txt";
+    ifstream file(filename);
+
+    string dRapp[56];
+    int dRnum;
+    file >> dRnum;
+    for (int i = 0; i < dRnum; i++)
+    {
+        file >> dRapp[i];
+    }
+    file.close();
+
+    int appointmentNumber;
+    bool valid = false;
+
+    while (!valid)
+    {
+        cout << back << "Enter the appointment number you want to edit: ";
+        cin >> appointmentNumber;
+
+        if (appointmentNumber < 1 || appointmentNumber > num)
+        {
+            cout << back << "Invalid appointment number. Please try again." << endl;
+        }
+        else
+        {
+            cout << "\t\t\t--------------------------------------------------------------------\n" << endl;
+
+            valid = true;
+            cout << back << "Here are the other available appointments for the Doctor:" << endl;
+            for (int i = 0; i < dRnum; i++)
+            {
+                cout << i + 1 << ". " << dRapp[i] << endl;
+            }
+        }
+    }
+    cout << "\t\t\t--------------------------------------------------------------------\n" << endl;
+
+    int newAppointmentNumber;
+    cout << back << "Which appointment would you like to choose? ";
+    cin >> newAppointmentNumber;
+
+    string editingApp = app[appointmentNumber - 1].appointment;
+    app[appointmentNumber - 1].appointment = dRapp[newAppointmentNumber - 1];
+    dRapp[newAppointmentNumber - 1] = editingApp;
+
+    fileUpdating(usernameOfDr, dRapp, dRnum);
+    editApptopatienthistory(app, num);
+    cout << "\t\t\t--------------------------------------------------------------------\n" << endl;
+
+    cout << back << "\n\nAppointment edited successfully.\n" << endl;
+    cout << "\t\t\t--------------------------------------------------------------------\n" << endl;
+
+}
+
+void cancelAppointment(string usernameofpatient, AllBookingsStrc app[], int num, Doctor doctorUsers[], int sizeOffileD, string usernameOfDr)
+{
+    cout << "\t\t\t--------------------------------------------------------------------\n" << endl;
+
+    string filename = usernameOfDr + ".txt";
+    ifstream file(filename);
+
+    string dRapp[56];
+    int dRnum;
+    file >> dRnum;
+    for (int i = 0; i < dRnum; i++)
+    {
+        file >> dRapp[i];
+    }
+    file.close();
+
+    int appointmentNumber;
+    bool valid = false;
+
+    while (!valid)
+    {
+        cout << back << "Enter the appointment number you want to cancel: ";
+        cin >> appointmentNumber;
+
+        if (appointmentNumber < 1 || appointmentNumber > num)
+        {
+            cout << back << "Invalid appointment number. Please try again." << endl;
+        }
+        else
+        {
+            valid = true;
+        }
+    }
+
+    dRapp[dRnum] = app[appointmentNumber - 1].appointment;
+    app[appointmentNumber - 1].appointment = " ";
+
+    num--;
+    dRnum++;
+
+    fileUpdating(usernameOfDr, dRapp, dRnum);
+    editApptopatienthistory(app, num);
+    cout << "\t\t\t--------------------------------------------------------------------\n" << endl;
+
+    cout  << back<<"Appointment canceled successfully.\n" << endl;
+
+}
+
+
+// this function is used to update the patients' appointments file
+void editApptopatienthistory(AllBookingsStrc app[100], int num)
+{
+    string filename = "AllBookings.txt";
+
+    ofstream outfile(filename);
+    outfile << num << endl;
+    for (int i = 0; i < num; i++)
+    {
+        outfile << app[i].drUsername << endl << app[i].patientUsername << endl << app[i].appointment << endl;
+    }
+    outfile.close();
+
+}
+
+
+
+// patients' login (break the log in loop)
+
